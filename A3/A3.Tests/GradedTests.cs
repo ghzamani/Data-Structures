@@ -6,7 +6,7 @@ namespace A3.Tests
     [TestClass()]
     public class GradedTests
     {
-        [TestMethod(), Timeout(400)]
+        [TestMethod(), Timeout(1000)]
         public void SolveTest_Q1MergeSort()
         {
             RunTest(new Q1MergeSort("TD1"));
