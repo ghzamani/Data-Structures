@@ -19,7 +19,7 @@ namespace A9.Tests
             RunTest(new Q2MergingTables("TD2"));
         }
 
-        [TestMethod(), Timeout(1750)]
+        [TestMethod(), Timeout(2000)]
         public void SolveTest_Q3Froggie()
         {
             RunTest(new Q3Froggie("TD3"));
