@@ -13,20 +13,20 @@ namespace A9.Tests
             RunTest(new Q1ConvertIntoHeap("TD1"));
         }
 
-        [TestMethod(), Timeout(2000)]
+        [TestMethod(), Timeout(2500)]
         public void SolveTest_Q2MergingTables()
         {
             RunTest(new Q2MergingTables("TD2"));
         }
 
-        [TestMethod()/*, Timeout(1500)*/]
+        [TestMethod(), Timeout(2000)]
         public void SolveTest_Q3Froggie()
         {
             RunTest(new Q3Froggie("TD3"));
         }
 
 
-        [TestMethod(), Timeout(3000)]
+        [TestMethod(), Timeout(3200)]
         public void SolveTest_Q4ParallelProcessing()
         {
             RunTest(new Q4ParallelProcessing("TD4"));
