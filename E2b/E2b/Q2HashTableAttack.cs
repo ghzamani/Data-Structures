@@ -11,7 +11,8 @@ namespace E2b
     {
         public Q2HashTableAttack (string testDataName) : base(testDataName) 
         {
-        }
+			//this.ExcludeTestCaseRangeInclusive(9, 10);
+		}
 
         public override string Process(string inStr)
         {
@@ -22,18 +23,22 @@ namespace E2b
         public string[] Solve(long bucketCount)
         {
 			double MaxLoadingFactor = 0.9;
-			string[] result = new string[(int) MaxLoadingFactor * bucketCount];
 
-			Random rnd = new Random();
-			int bucketNum = rnd.Next(1, (int)bucketCount);
+			string[] result = new string[(int) (MaxLoadingFactor * bucketCount)];
 
-			for (int i = 0; i < result.Length; i++)
+			result[0] = RandomString();
+			int j = 1;
+			while(result.Last() == null)
 			{
-				long val = (i + 1) * bucketCount + bucketNum;
-				
+				string random = RandomString();
+				if (GetBucketNumber(result[0], bucketCount) == GetBucketNumber(random, bucketCount))
+				{
+					result[j] = random;
+					j++;
+				}
 			}
-			AllChars.OrderBy(x => x);
-			throw new NotImplementedException();            
+           
+			return result;
         }
 
         #region Chars
@@ -52,14 +57,25 @@ namespace E2b
             .Select(n => (char)('0' + n))
             .ToArray();
 
-        static char[] AllChars = 
-            LowChars.Concat(CapChars).Concat(Numbers).ToArray();
-        #endregion
+		static char[] AllChars =
+			LowChars.Concat(CapChars).Concat(Numbers).ToArray();
+		#endregion
 
+		public string RandomString()
+		{
+			string result = string.Empty;
+			//rnd is length of result
+			int rnd = new Random(1).Next(1, 5);
+			for (int j = 0; j < rnd; j++)
+			{
+				result += AllChars[new Random().Next(0, AllChars.Length - 1)];
+			}
+			return result;
+		}
 
-        // پیاده‌سازی مورد استفاده دات‌نت برای پیدا کردن شماره باکت
-        // https://referencesource.microsoft.com/#mscorlib/system/collections/generic/dictionary.cs,bcd13bb775d408f1
-        public static long GetBucketNumber(string str, long bucketCount) =>
+		// پیاده‌سازی مورد استفاده دات‌نت برای پیدا کردن شماره باکت
+		// https://referencesource.microsoft.com/#mscorlib/system/collections/generic/dictionary.cs,bcd13bb775d408f1
+		public static long GetBucketNumber(string str, long bucketCount) =>
             (str.GetHashCode() & 0x7FFFFFFF) % bucketCount;
     }
 }
