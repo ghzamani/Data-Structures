@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using TestCommon;
 
@@ -18,9 +17,6 @@ namespace A11
 							['?'] = Find,
 							['s'] = Sum
 						};
-			//this.ExcludeTestCases( 3);
-			this.ExcludeTestCaseRangeInclusive(1, 9);
-			this.ExcludeTestCaseRangeInclusive(11, 69);
 		}
 
 		public override string Process(string inStr) =>
@@ -31,15 +27,12 @@ namespace A11
 		public const long M = 1_000_000_001;
 
 		public long X = 0;
-
-		protected List<long> Data;
-
+		public SplayTree splayTree;
 		public string[] Solve(string[] lines)
 		{
-			BST.BStree = new Dictionary<long, Node>();
-			BST.Root = null;
 			X = 0;
-			Data = new List<long>();
+			splayTree = new SplayTree();
+
 			List<string> result = new List<string>();
 			foreach (var line in lines)
 			{
@@ -52,245 +45,35 @@ namespace A11
 			return result.ToArray();
 		}
 
-		public class Node
-		{
-			public long Key;
-			public Node Parent;
-			public Node LeftChild;
-			public Node RightChild;
-
-			public Node(long k)
-			{
-				Key = k;
-			}
-		}
-		public class BST
-		{
-			public static Node Root;
-			public static Dictionary<long, Node> BStree;
-
-			public static Node FindRoot()
-			{
-				foreach (var v in BStree)
-				{
-					if (v.Value.Parent == null)
-						return v.Value;
-				}
-				//no tree is composed
-				return null;
-			}
-			public static Node Find(long k, Node R)
-			{
-				if (R.Key == k)
-					return R;
-
-				else
-				{
-					if (R.Key > k)
-					{
-						if (R.LeftChild != null)
-							return Find(k, R.LeftChild);
-						return R;
-					}
-
-					if (R.RightChild != null)
-						return Find(k, R.RightChild);
-
-					//if k is bigger than all nodes, then return root
-					return R;
-				}
-			}
-
-			public static void Insert(long k, Node R)
-			{
-				//اگر درختی وجود نداشت نود را به عنوان روت اضافه میکنیم
-				if (R == null)
-				{
-					BStree.Add(k, new Node(k));
-					BST.Root = FindRoot();
-					return;
-				}
-
-				Node p = Find(k, R);
-
-				//if k was not in the tree then add it
-				if (p.Key != k)
-				{
-					Node newNode = new Node(k);
-					if (k < p.Key)
-					{
-						p.LeftChild = newNode;
-						newNode.Parent = p;
-					}
-
-					//might be wrong!!
-					else
-					{
-						//if the given key was less than all the nodes in tree
-						//the key has to become the new root of the tree
-						if (k > Root.Key)
-						{
-							newNode.LeftChild = p;
-							p.Parent = newNode;
-						}
-
-						else
-						{
-							p.RightChild = newNode;
-							newNode.Parent = p;
-						}
-					}
-					BStree.Add(k, newNode);
-					BST.Root = FindRoot();
-				}
-			}
-
-			public static void Delete(Node N)
-			{
-				Node p = Find(N.Key, Root);
-
-				try
-				{
-					//if N was found in the tree
-					if (p.Key == N.Key)
-					{
-						if (p.RightChild == null)
-						{
-							//Remove N, promote N:Left
-							if (p.LeftChild != null)
-							{
-								p.LeftChild.Parent = p.Parent;
-								if (p.Parent != null)
-									p.Parent.RightChild = p.LeftChild;
-							}
-						}
-
-						else
-						{
-							Node x = Next(N);
-							Node copiedX = x; //needed for right part of x
-
-							//Replace N by X, promote X:Right
-							x.Parent = p.Parent;
-							x.RightChild = p.RightChild;
-
-							x.RightChild.Parent = x;
-							x.Parent.LeftChild = x;
-
-							copiedX.RightChild.Parent = copiedX.Parent;
-						}
-						BStree.Remove(N.Key);
-
-					}
-				}
-				finally
-				{
-					BST.Root = FindRoot();
-				}
-			}
-
-			//better to add sth to check whether has next item or not
-			public static Node Next(Node N)
-			{
-				if (N.RightChild != null)
-					return LeftDescendant(N.RightChild);
-
-				//if N has the biggest key in whole tree, so it doesn't have next.
-				if (BStree.Keys.Max() == N.Key)
-					return null;
-
-				return RightAncestor(N);
-			}
-
-			public static Node RightAncestor(Node N)
-			{
-				//if N is the root, return itself
-				if (Root == N)
-					return N;
-
-				if (N.Key < N.Parent.Key)
-					return N.Parent;
-				return RightAncestor(N.Parent);
-			}
-
-			private static Node LeftDescendant(Node N)
-			{
-				if (N.LeftChild == null)
-					return N;
-				return LeftDescendant(N.LeftChild);
-			}
-
-			public static List<Node> RangeSearch(long x, long y, Node R)
-			{
-				List<Node> result = new List<Node>();
-
-				if (Root == null)
-					return result;
-
-				Node N = Find(x, R);
-				while (N.Key <= y)
-				{
-					//try
-					//{
-					if (N.Key >= x)
-						result.Add(N);
-					N = Next(N);
-					if (N == null)
-						break;
-					//seems Next does not work properly :/
-					//}
-					//catch
-					//{
-					//	break;
-					//}
-				}
-
-				return result;
-			}
-		}
-
 		private long Convert(long i)
 			=> i = (i + X) % M;
 
 		private string Add(string arg)
 		{
 			long i = Convert(long.Parse(arg));
+			splayTree.Insert(i);
 
-			//int idx = Data.BinarySearch(i);
-			//if (idx < 0)
-			//	Data.Insert(~idx, i);
-
-			BST.Insert(i, BST.Root);
 			return null;
 		}
 
 		private string Del(string arg)
 		{
 			long i = Convert(long.Parse(arg));
-			//int idx = Data.BinarySearch(i);
-			//if (idx >= 0)
-			//	Data.RemoveAt(idx);
-			if (BST.BStree.Count != 0)				
-				BST.Delete(new Node(i));
+			splayTree.Delete(i);
 
 			return null;
 		}
 
 		private string Find(string arg)
 		{
-			if (BST.BStree.Count == 0)
-				return "Not found";
-
 			long i = Convert(int.Parse(arg));
-			//int idx = Data.BinarySearch(i);
-			//return idx < 0 ?
-			//	"Not found" : "Found";
-
-			//حالت موجود نبودن درخت در خط 242 چک شد پس
-			//p != null
-			Node p = BST.Find(i, BST.Root);
-			if (p.Key == i)
-				return "Found";
+			if(splayTree.Root != null)
+			{
+				Pair n = splayTree.Find(splayTree.Root, i);
+				splayTree.Root = splayTree.Splay(n.Item2); 
+				if (splayTree.Root.Key == i)
+					return "Found";		
+			}
 			return "Not found";
 		}
 
@@ -299,32 +82,264 @@ namespace A11
 			var toks = arg.Split();
 			long l = Convert(long.Parse(toks[0]));
 			long r = Convert(long.Parse(toks[1]));
+			
+			long sum = 0;
+			sum = splayTree.SumRange(l, r);
+			X = sum;
+			return sum.ToString();
+		}
+	}
+	public class Node
+	{
+		public long Key;
+		public long Sum;
 
-			//l = Data.BinarySearch(l);
-			//if (l < 0)
-			//	l = ~l;
+		public Node Parent;
+		public Node LeftChild;
+		public Node RightChild;
 
-			//r = Data.BinarySearch(r);
-			//if (r < 0)
-			//	r = (~r - 1);
-			// If not ~r will point to a position with
-			// a larger number. So we should not include 
-			// that position in our search.
+		public Node(long key, long sum, Node left = null, Node right = null, Node parent = null)
+		{
+			Key = key;
+			Sum = sum;
+			LeftChild = left;
+			RightChild = right;
+			Parent = parent;
+		}
+
+		//default cons
+		public Node() { }
+	}
+
+	//easier than tuple, cause tuple is immutable
+	public class Pair
+	{
+		public Node Item1;
+		public Node Item2;
+		public Pair()
+		{
+		}
+		public Pair(Node i1, Node i2)
+		{
+			this.Item1 = i1;
+			this.Item2 = i2;
+		}
+	}
+	public class SplayTree
+	{
+		public Node Root = null;
+
+		public void Update(Node N)
+		{
+			if (N != null)
+			{
+				N.Sum = N.Key;
+
+				if (N.LeftChild != null)
+				{
+					N.Sum += N.LeftChild.Sum;
+					N.LeftChild.Parent = N;
+				}
+
+				if (N.RightChild != null)
+				{
+					N.Sum += N.RightChild.Sum;
+					N.RightChild.Parent = N;
+				}
+			}
+		}
+
+		public void InnerRotate(Node N)
+		{
+			Node parent = N.Parent;
+
+			if (parent != null)
+			{
+				Node grandparent = N.Parent.Parent;
+				Node tmp;
+
+				if (parent.LeftChild == N)
+				{
+					tmp = N.RightChild;
+					N.RightChild = parent;
+					parent.LeftChild = tmp;
+				}
+				else
+				{
+					tmp = N.LeftChild;
+					N.LeftChild = parent;
+					parent.RightChild = tmp;
+				}
+
+				Update(parent);
+				Update(N);
+				N.Parent = grandparent;
+				if (grandparent != null)
+				{
+					if (grandparent.LeftChild == parent)
+						grandparent.LeftChild = N;
+					
+					else grandparent.RightChild = N;					
+				}
+			}
+		}
+
+		public void ZigZig(Node N)
+		{
+			InnerRotate(N.Parent);
+			InnerRotate(N);
+		}
+		public void ZigZag(Node N)
+		{
+			InnerRotate(N);
+			InnerRotate(N);
+		}
+		public void Rotation(Node N)
+		{
+			if ((N.Parent.LeftChild == N && N.Parent.Parent.LeftChild == N.Parent) ||
+				(N.Parent.RightChild == N && N.Parent.Parent.RightChild == N.Parent))
+				ZigZig(N);			
+			
+			else ZigZag(N);			
+		}
+
+		public Node Splay(Node N)
+		{
+			if (N != null)
+			{
+				while (N.Parent != null)
+				{
+					if (N.Parent.Parent == null)
+					{
+						InnerRotate(N);
+						break;
+					}
+					Rotation(N);
+				}
+				return N; //root
+			}
+
+			return null;
+		}
+				
+
+		// if not found --> result = the node with the smallest bigger key
+		//if biggest key --> result = null
+		public Pair Find(Node root, long key)
+		{
+			Node N = root;
+			Node last = root;
+			Node next = null;
+			while (N != null)
+			{
+				if (N.Key >= key && (next == null || N.Key < next.Key))
+					next = N;
+				
+				last = N;
+				if (N.Key == key)
+					break;
+				
+				if (N.Key < key)
+					N = N.RightChild;
+				
+				else N = N.LeftChild;				
+			}
+			// calls splay for the deepest visited node.
+			root = Splay(last);
+			return new Pair(next, root);
+		}
+
+		public Pair Split(Node root, long key)
+		{
+			Pair result = new Pair();
+			Pair nodes = Find(root, key);
+
+			root = nodes.Item2;
+			result.Item2 = nodes.Item1;
+
+			if (result.Item2 == null)
+			{
+				result.Item1 = root;
+				return result;
+			}
+
+			result.Item2 = Splay(result.Item2);
+			result.Item1 = result.Item2.LeftChild;
+			result.Item2.LeftChild = null;
+
+			if (result.Item1 != null)
+				result.Item1.Parent = null;
+			
+			Update(result.Item1);
+			Update(result.Item2);
+			return result;
+		}
+
+		public Node Merge(Node left, Node right)
+		{
+			if (left == null) return right;
+			if (right == null) return left;
+
+			while (right.LeftChild != null)
+				right = right.LeftChild;
+			
+			right = Splay(right);
+			right.LeftChild = left;
+			Update(right);
+			return right;
+		}
+
+		public void Insert(long key)
+		{
+			Node left, right;
+			Node newNode = null;
+			Pair nodes = Split(Root, key);
+
+			left = nodes.Item1;
+			right = nodes.Item2;
+
+			if (right == null || right.Key != key)
+				newNode = new Node(key, key);
+			
+			Root = Merge(Merge(left, newNode), right);
+		}
+
+		public void Delete(long key)
+		{
+			Node l, m, r;
+			Pair nodes = Split(Root, key);
+			l = nodes.Item1;
+			m = nodes.Item2;
+
+			Pair tree = Split(m, key + 1);
+			m = tree.Item1;
+			r = tree.Item2;
+			m = null;
+			Root = Merge(l, r);
+			Splay(Root);
+		}
+
+		public long SumRange(long l, long r)
+		{
+			if (l > r) return 0;
 
 			long sum = 0;
-			//for (int i = (int)l; i <= r && i < Data.Count; i++)
-			//	sum += Data[i];
+			Node left, middle, right;
 
-			List<Node> nodes = BST.RangeSearch(l, r, BST.Root);
-			if (nodes.Count == 0)
-				sum = 0;
+			Pair lAndM = Split(Root, l);
+			left = lAndM.Item1;
+			middle = lAndM.Item2;
 
-			foreach (var node in nodes)
-				sum += node.Key;
+			Pair mAndR = Split(middle, r + 1);
+			middle = mAndR.Item1;
+			right = mAndR.Item2;
 
-			X = sum;
+			if (middle != null) 
+				sum += middle.Sum;
 
-			return sum.ToString();
+			Node tmp = Merge(left, middle);
+			Root = Merge(tmp, right);
+			return sum;
 		}
 	}
 }

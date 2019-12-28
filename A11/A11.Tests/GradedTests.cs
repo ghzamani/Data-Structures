@@ -7,28 +7,28 @@ namespace A11.Tests
     [TestClass()]
     public class GradedTests
     {
-        [TestMethod()/*, Timeout(2000)*/]
+        [TestMethod(), Timeout(2000)]
         public void SolveTest_Q1BinaryTreeTraversals()
         {
             RunTest(new Q1BinaryTreeTraversals("TD1"));
         }
 
-        [TestMethod()/*, Timeout(1500)*/]
+        [TestMethod(), Timeout(1500)]
         public void SolveTest_Q2IsItBST()
         {
             RunTest(new Q2IsItBST("TD2"));
         }
 
-        [TestMethod()/*, Timeout(1500)*/]
+        [TestMethod(), Timeout(1500)]
         public void SolveTest_Q3IsItBSTHard()
         {
             RunTest(new Q3IsItBSTHard("TD3"));
         }
 
-        [TestMethod()/*, Timeout(10000)*/] // change the timeout to 6000 if you could solve it
+        [TestMethod(), Timeout(6000)] // change the timeout to 6000 if you could solve it
         public void SolveTest_Q4SetWithRangeSums()
         {
-			Assert.Inconclusive();
+			//Assert.Inconclusive();
             RunTest(new Q4SetWithRangeSums("TD4"));
         }
 
