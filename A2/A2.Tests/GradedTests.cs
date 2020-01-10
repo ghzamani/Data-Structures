@@ -19,7 +19,7 @@ namespace A2.Tests
             RunTest(new Q1NaiveMaxPairWise("TD1"));
         }
 
-        [TestMethod(), Timeout(1600)]
+        [TestMethod(), Timeout(1500)]
         public void SolveTest_Q2FastMaxPairWise()
         {
             RunTest(new Q2FastMaxPairWise("TD2"));
